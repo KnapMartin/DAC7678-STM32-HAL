@@ -20,7 +20,9 @@ extern "C" {
 typedef enum
 {
 	DAC7678_OK,
-	DAC7678_ERROR
+	DAC7678_ERROR,
+	DAC7678_ERROR_TX,
+	DAC7678_ERROR_RX,
 } DAC7678_State;
 
 typedef struct
@@ -31,6 +33,7 @@ typedef struct
 
 typedef enum
 {
+	DAC7678_CH_NONE = -1,
 	DAC7678_CH_A 	= 0b0000,
 	DAC7678_CH_B 	= 0b0001,
 	DAC7678_CH_C 	= 0b0010,
@@ -44,39 +47,44 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_WRITE_IN_REG      = 0b0000,
-	DAC7678_READ_IN_REG       = 0b0000,
-	DAC7678_UPDATE_DAC_REG    = 0b0001,
-	DAC7678_READ_DAC_REG      = 0b0001,
-	DAC7678_WRITE_UPDATE      = 0b0011,
-	DAC7678_WRITE_UPDATE_ALL  = 0b0010,
-	DAC7678_WRITE_OFF         = 0b0100,
-	DAC7678_READ_OFF          = 0b0100,
-	DAC7678_WRITE_CLR_CODE    = 0b0101,
-	DAC7678_READ_CLR_CODE     = 0b0101,
-	DAC7678_WRITE_LDAC        = 0b0110,
-	DAC7678_READ_LDAC         = 0b0110,
-	DAC7678_RESET             = 0b0111,
-	DAC7678_WRITE_REF_STATIC  = 0b1000,
-	DAC7678_READ_REF_STATIC   = 0b1000,
-	DAC7678_WRITE_REF_FLEX    = 0b1001,
-	DAC7678_READ_REF_FLEX     = 0b1001
+	DAC7678_CMD_NONE               = -1,
+	DAC7678_CMD_WRITE_IN_REG       = 0b0000,
+	DAC7678_CMD_READ_IN_REG        = 0b0000,
+	DAC7678_CMD_UPDATE_DAC_REG     = 0b0001,
+	DAC7678_CMD_READ_DAC_REG       = 0b0001,
+	DAC7678_CMD_WRITE_UPDATE       = 0b0011,
+	DAC7678_CMD_WRITE_UPDATE_ALL   = 0b0010,
+	DAC7678_CMD_WRITE_OFF          = 0b0100,
+	DAC7678_CMD_READ_OFF           = 0b0100,
+	DAC7678_CMD_WRITE_CLR_CODE     = 0b0101,
+	DAC7678_CMD_READ_CLR_CODE      = 0b0101,
+	DAC7678_CMD_WRITE_LDAC         = 0b0110,
+	DAC7678_CMD_READ_LDAC          = 0b0110,
+	DAC7678_CMD_RESET              = 0b0111,
+	DAC7678_CMD_WRITE_REF_STATIC   = 0b1000,
+	DAC7678_CMD_READ_REF_STATIC    = 0b1000,
+	DAC7678_CMD_WRITE_REF_FLEX     = 0b1001,
+	DAC7678_CMD_READ_REF_FLEX      = 0b1001
 } DAC7678_Command;
 
 typedef enum
 {
+	DAC7678_WRITE_NONE,
 	DAC7678_UPDATE_ON,
-	DAC7678_UPDATE_OFF
+	DAC7678_UPDATE_OFF,
+	DAC7678_UPDATE_ALL
 } DAC7678_WriteOptions;
 
 typedef enum
 {
+	DAC7678_REF_S_NONE,
 	DAC7678_REF_ON,
 	DAC7678_REF_OFF
 } DAC7678_ReferenceStaticOptions;
 
 typedef enum
 {
+	DAC7678_REF_F_NONE,
 	DAC7678_REF_SYNCH_DAC,
 	DAC7678_REF_ALWAYS_ON,
 	DAC7678_REF_ALWAYS_OFF,
@@ -86,7 +94,7 @@ typedef enum
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c);
 
 DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const DAC7678_WriteOptions options, const uint16_t value);
-DAC7678_State DAC7678_update(DAC7678 *device);
+DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel);
 DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
 DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
 

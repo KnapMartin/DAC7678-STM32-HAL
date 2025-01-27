@@ -29,26 +29,47 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 	uint8_t data[3];
 	if (options == DAC7678_UPDATE_ON)
 	{
-		data[0] = (DAC7678_WRITE_UPDATE << 4) | channel;
+		data[0] = (DAC7678_CMD_WRITE_UPDATE << 4) | channel;
+	}
+	else if (options == DAC7678_UPDATE_OFF)
+	{
+		data[0] = (DAC7678_CMD_WRITE_IN_REG << 4) | channel;
+	}
+	else if (options == DAC7678_UPDATE_ALL)
+	{
+		data[0] = (DAC7678_CMD_WRITE_UPDATE_ALL << 4) | channel;
 	}
 	else
 	{
-		data[0] = (DAC7678_WRITE_IN_REG << 4) | channel;
+		return DAC7678_ERROR;
 	}
+
 	data[1] = (uint8_t)(value >> 4);
 	data[2] = (uint8_t)(value << 4);
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, sDeviceAddress, data, 3, DAC7678_TIMEOUT) != HAL_OK)
 	{
-		return DAC7678_ERROR;
+		return DAC7678_ERROR_TX;
 	}
 
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_update(DAC7678 *device)
+DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel)
 {
+	if (!sInit) return DAC7678_ERROR;
 
+	uint8_t data[3];
+	data[0] = DAC7678_CMD_UPDATE_DAC_REG << 4;
+	data[1] = 0x00;
+	data[2] = 0x00;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, sDeviceAddress, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	return DAC7678_OK;
 }
 
 DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options)
@@ -56,20 +77,24 @@ DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC76
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_WRITE_REF_STATIC;
+	data[0] = DAC7678_CMD_WRITE_REF_STATIC << 4;
 	data[1] = 0x00;
 	if (options == DAC7678_REF_ON)
 	{
 		data[2] = 0x10;
 	}
-	else
+	else if (options == DAC7678_REF_OFF)
 	{
 		data[2] = 0x00;
+	}
+	else
+	{
+		return DAC7678_ERROR;
 	}
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, sDeviceAddress, data, 3, DAC7678_TIMEOUT) != HAL_OK)
 	{
-		return DAC7678_ERROR;
+		return DAC7678_ERROR_TX;
 	}
 
 	return DAC7678_OK;
@@ -80,7 +105,7 @@ DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC767
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_WRITE_REF_FLEX;
+	data[0] = DAC7678_CMD_WRITE_REF_FLEX << 4;
 	data[2] = 0x00;
 	switch (options)
 	{
@@ -106,13 +131,13 @@ DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC767
 		}
 		default:
 		{
-			return DAC7678_OK;
+			return DAC7678_ERROR;
 		}
 	}
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, sDeviceAddress, data, 3, DAC7678_TIMEOUT) != HAL_OK)
 	{
-		return DAC7678_ERROR;
+		return DAC7678_ERROR_TX;
 	}
 
 	return DAC7678_OK;
