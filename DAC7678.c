@@ -48,7 +48,7 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = (device->m_writeOptions << 4) | channel;
+	data[0] = (uint8_t)(device->m_writeOptions | channel);
 	data[1] = (uint8_t)(value >> 4);
 	data[2] = (uint8_t)(value << 4);
 
@@ -65,7 +65,7 @@ DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel chan
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_UPDATE_DAC_REG << 4;
+	data[0] = DAC7678_CMD_UPDATE_DAC_REG;
 	data[1] = 0x00;
 	data[2] = 0x00;
 
@@ -82,7 +82,7 @@ DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions 
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_PWR << 4;
+	data[0] = DAC7678_CMD_WRITE_PWR;
 	uint16_t channels = channelMask << 5;
 	data[1] = (uint8_t)(channels >> 8);
 	data[1] = data[1] | options;
@@ -101,7 +101,7 @@ DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions 
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_CLR_CODE << 4;
+	data[0] = DAC7678_CMD_WRITE_CLR_CODE;
 	data[1] = 0x00;
 	data[2] = (uint8_t)options;
 
@@ -118,7 +118,7 @@ DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_LdacChannel ch
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_LDAC << 4;
+	data[0] = DAC7678_CMD_WRITE_LDAC;
 	data[1] = (uint8_t)channelMask;
 	data[2] = 0x00;
 
@@ -135,7 +135,7 @@ DAC7678_State DAC7678_set_int_ref_static_reg(DAC7678 *device, const DAC7678_Refe
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_REF_STATIC << 4;
+	data[0] = DAC7678_CMD_WRITE_REF_STATIC;
 	data[1] = 0x00;
 	data[2] = (uint8_t)options;
 
@@ -152,7 +152,7 @@ DAC7678_State DAC7678_set_int_ref_flexi_reg(DAC7678 *device, const DAC7678_Refer
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_REF_FLEX << 4;
+	data[0] = DAC7678_CMD_WRITE_REF_FLEX;
 	data[1] = (uint8_t)options;
 	data[2] = 0x00;
 
@@ -169,7 +169,7 @@ DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[3];
-	data[0] = DAC7678_CMD_RESET << 4;
+	data[0] = DAC7678_CMD_RESET;
 	data[1] = (uint8_t)options;
 	data[2] = 0x00;
 
@@ -186,7 +186,7 @@ DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, 
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_IN_REG << 4 | channel;
+	data[0] = (uint8_t)(DAC7678_CMD_READ_IN_REG | channel);
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -212,7 +212,7 @@ DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_DAC_REG << 4 | channel;
+	data[0] = (uint8_t)(DAC7678_CMD_READ_DAC_REG | channel);
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -238,7 +238,7 @@ DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *optio
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_PWR << 4;
+	data[0] = DAC7678_CMD_READ_PWR;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -262,7 +262,7 @@ DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *optio
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_CLR_CODE << 4;
+	data[0] = DAC7678_CMD_READ_CLR_CODE;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -285,7 +285,7 @@ DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_LdacChannel *channel
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_LDAC << 4;
+	data[0] = DAC7678_CMD_READ_LDAC;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -308,7 +308,7 @@ DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceS
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_REF_STATIC << 4;
+	data[0] = DAC7678_CMD_READ_REF_STATIC;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
@@ -331,7 +331,7 @@ DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFl
 	if (!sInit) return DAC7678_ERROR;
 
 	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_REF_FLEX << 4;
+	data[0] = DAC7678_CMD_READ_REF_FLEX;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
 	{
