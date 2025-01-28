@@ -71,23 +71,21 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_REF_S_NONE,
-	DAC7678_REF_S_ON,
-	DAC7678_REF_S_OFF
+	DAC7678_REF_S_ON 	= 0x10,
+	DAC7678_REF_S_OFF 	= 0x00
 } DAC7678_ReferenceStaticOptions;
 
 typedef enum
 {
-	DAC7678_REF_F_NONE,
-	DAC7678_REF_F_SYNCH_DAC,
-	DAC7678_REF_F_ALWAYS_ON,
-	DAC7678_REF_F_ALWAYS_OFF,
-	DAC7678_REF_F_AS_STATIC,
+	DAC7678_REF_F_SYNCH_DAC 	= 0b01000000,
+	DAC7678_REF_F_ALWAYS_ON 	= 0b01010000,
+	DAC7678_REF_F_ALWAYS_OFF 	= 0b01100000,
+	DAC7678_REF_F_AS_STATIC		= 0b00000000,
 } DAC7678_ReferenceFlexiOptions;
 
 typedef enum
 {
-	DAC7678_PWR_NONE 			= - 1,
+	DAC7678_PWR_NONE 			= -1,
 	DAC7678_PWR_ON 				= 0,
 	DAC7678_PWR_PLDOWN_1K 		= 0b00100000,
 	DAC7678_PWR_PLDOWN_100K		= 0b01000000,
@@ -110,7 +108,7 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_CLR_NONE = -1,
+	DAC7678_CLR_NONE 	= -1,
 	DAC7678_CLR_ZERO 	= 0b00000000,
 	DAC7678_CLR_MID 	= 0b00010000,
 	DAC7678_CLR_FULL	= 0b00100000,
@@ -154,8 +152,9 @@ DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC767
 DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
 DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
 DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
-
 DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
+
+DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
