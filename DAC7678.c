@@ -60,7 +60,7 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel)
+DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel channel)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -77,7 +77,7 @@ DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel)
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask)
+DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -96,7 +96,7 @@ DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions opti
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_clear_code(DAC7678 *device, const DAC7678_ClearOptions options)
+DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -113,7 +113,7 @@ DAC7678_State DAC7678_set_clear_code(DAC7678 *device, const DAC7678_ClearOptions
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask)
+DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_LdacChannel channelMask)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -130,7 +130,7 @@ DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channe
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options)
+DAC7678_State DAC7678_set_int_ref_static_reg(DAC7678 *device, const DAC7678_ReferenceStaticOptions options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -147,7 +147,7 @@ DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC76
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options)
+DAC7678_State DAC7678_set_int_ref_flexi_reg(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -181,7 +181,7 @@ DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
+DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -207,7 +207,7 @@ DAC7678_State DAC7678_read_value(DAC7678 *device, const DAC7678_Channel channel,
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_dac_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
+DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -233,7 +233,7 @@ DAC7678_State DAC7678_read_dac_value(DAC7678 *device, const DAC7678_Channel chan
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_power_value(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_PowerChannels *channelMask)
+DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_PowerChannels *channelMask)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -257,7 +257,7 @@ DAC7678_State DAC7678_read_power_value(DAC7678 *device, DAC7678_PowerOptions *op
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_clear_value(DAC7678 *device, DAC7678_ClearOptions *options)
+DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -280,7 +280,7 @@ DAC7678_State DAC7678_read_clear_value(DAC7678 *device, DAC7678_ClearOptions *op
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *channelMask)
+DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_LdacChannel *channelMask)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -303,7 +303,7 @@ DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *chan
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_ReferenceStaticOptions *options)
+DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceStaticOptions *options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -326,7 +326,7 @@ DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_Re
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_read_internal_reference_flexi(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options)
+DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options)
 {
 	if (!sInit) return DAC7678_ERROR;
 
@@ -392,7 +392,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_A, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_A, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -404,7 +404,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_B, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_B, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -416,7 +416,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_C, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_C, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -428,7 +428,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_D, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_D, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -440,7 +440,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_E, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_E, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -452,7 +452,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_F, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_F, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -464,7 +464,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_G, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_G, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -476,7 +476,7 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_H, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_H, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -498,11 +498,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_A) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_A) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_A, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_A, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -514,11 +514,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_B) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_B) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_B, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_B, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -530,11 +530,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_C) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_C) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_C, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_C, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -546,11 +546,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_D) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_D) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_D, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_D, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -562,11 +562,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_E) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_E) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_E, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_E, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -578,11 +578,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_F) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_F) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_F, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_F, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -594,11 +594,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_G) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_G) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_G, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_G, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -610,11 +610,11 @@ DAC7678_Test test_wr_dac_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_update(device, DAC7678_CH_H) != DAC7678_OK)
+	if (DAC7678_update_dac_reg(device, DAC7678_CH_H) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_value(device, DAC7678_CH_H, &dataR) != DAC7678_OK)
+	if (DAC7678_get_value(device, DAC7678_CH_H, &dataR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -630,11 +630,11 @@ DAC7678_Test test_wr_reference_register_static(DAC7678 *device)
 
 	optionW = DAC7678_REF_S_ON;
 	optionR = DAC7678_REF_S_NONE;
-	if (DAC7678_set_internal_reference_static(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_static_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_static(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_static_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -642,11 +642,11 @@ DAC7678_Test test_wr_reference_register_static(DAC7678 *device)
 
 	optionW = DAC7678_REF_S_OFF;
 	optionR = DAC7678_REF_S_NONE;
-	if (DAC7678_set_internal_reference_static(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_static_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_static(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_static_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -662,11 +662,11 @@ DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device)
 
 	optionW = DAC7678_REF_F_SYNCH_DAC;
 	optionR = DAC7678_REF_F_NONE;
-	if (DAC7678_set_internal_reference_flexi(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_flexi_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_flexi(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_flexi_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -678,11 +678,11 @@ DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device)
 
 	optionW = DAC7678_REF_F_ALWAYS_ON;
 	optionR = DAC7678_REF_F_NONE;
-	if (DAC7678_set_internal_reference_flexi(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_flexi_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_flexi(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_flexi_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -690,11 +690,11 @@ DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device)
 
 	optionW = DAC7678_REF_F_ALWAYS_OFF;
 	optionR = DAC7678_REF_F_NONE;
-	if (DAC7678_set_internal_reference_flexi(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_flexi_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_flexi(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_flexi_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -702,11 +702,11 @@ DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device)
 
 	optionW = DAC7678_REF_F_AS_STATIC;
 	optionR = DAC7678_REF_F_NONE;
-	if (DAC7678_set_internal_reference_flexi(device, optionW) != DAC7678_OK)
+	if (DAC7678_set_int_ref_flexi_reg(device, optionW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_internal_reference_flexi(device, &optionR) != DAC7678_OK)
+	if (DAC7678_get_int_ref_flexi_reg(device, &optionR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -726,11 +726,11 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 	optionsR = DAC7678_PWR_NONE;
 	channelsW = DAC7678_PWR_CH_ALL;
 	channelsR = DAC7678_PWR_CH_NONE;
-	if (DAC7678_set_power(device, optionsW, channelsW) != DAC7678_OK)
+	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_power_value(device, &optionsR, &channelsR) != DAC7678_OK)
+	if (DAC7678_get_power_reg(device, &optionsR, &channelsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -741,11 +741,11 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 	optionsR = DAC7678_PWR_NONE;
 	channelsW = DAC7678_PWR_CH_D;
 	channelsR = DAC7678_PWR_CH_NONE;
-	if (DAC7678_set_power(device, optionsW, channelsW) != DAC7678_OK)
+	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_power_value(device, &optionsR, &channelsR) != DAC7678_OK)
+	if (DAC7678_get_power_reg(device, &optionsR, &channelsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -756,11 +756,11 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 	optionsR = DAC7678_PWR_NONE;
 	channelsW = DAC7678_PWR_CH_A | DAC7678_PWR_CH_C | DAC7678_PWR_CH_H;
 	channelsR = DAC7678_PWR_CH_NONE;
-	if (DAC7678_set_power(device, optionsW, channelsW) != DAC7678_OK)
+	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_power_value(device, &optionsR, &channelsR) != DAC7678_OK)
+	if (DAC7678_get_power_reg(device, &optionsR, &channelsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -773,11 +773,11 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 	optionsR = DAC7678_PWR_NONE;
 	channelsW = DAC7678_PWR_CH_F | DAC7678_PWR_CH_D | DAC7678_PWR_CH_H;
 	channelsR = DAC7678_PWR_CH_NONE;
-	if (DAC7678_set_power(device, optionsW, channelsW) != DAC7678_OK)
+	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_power_value(device, &optionsR, &channelsR) != DAC7678_OK)
+	if (DAC7678_get_power_reg(device, &optionsR, &channelsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -794,11 +794,11 @@ DAC7678_Test test_wr_clear_register(DAC7678 *device)
 
 	optionsW = DAC7678_CLR_ZERO;
 	optionsR = DAC7678_CLR_NONE;
-	if (DAC7678_set_clear_code(device, optionsW) != DAC7678_OK)
+	if (DAC7678_set_clear_reg(device, optionsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_clear_value(device, &optionsR) != DAC7678_OK)
+	if (DAC7678_get_clear_reg(device, &optionsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -806,11 +806,11 @@ DAC7678_Test test_wr_clear_register(DAC7678 *device)
 
 	optionsW = DAC7678_CLR_MID;
 	optionsR = DAC7678_CLR_NONE;
-	if (DAC7678_set_clear_code(device, optionsW) != DAC7678_OK)
+	if (DAC7678_set_clear_reg(device, optionsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_clear_value(device, &optionsR) != DAC7678_OK)
+	if (DAC7678_get_clear_reg(device, &optionsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -818,11 +818,11 @@ DAC7678_Test test_wr_clear_register(DAC7678 *device)
 
 	optionsW = DAC7678_CLR_FULL;
 	optionsR = DAC7678_CLR_NONE;
-	if (DAC7678_set_clear_code(device, optionsW) != DAC7678_OK)
+	if (DAC7678_set_clear_reg(device, optionsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_clear_value(device, &optionsR) != DAC7678_OK)
+	if (DAC7678_get_clear_reg(device, &optionsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -830,11 +830,11 @@ DAC7678_Test test_wr_clear_register(DAC7678 *device)
 
 	optionsW = DAC7678_CLR_DISABLE;
 	optionsR = DAC7678_CLR_NONE;
-	if (DAC7678_set_clear_code(device, optionsW) != DAC7678_OK)
+	if (DAC7678_set_clear_reg(device, optionsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_clear_value(device, &optionsR) != DAC7678_OK)
+	if (DAC7678_get_clear_reg(device, &optionsR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -850,11 +850,11 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 
 	channelW = DAC7678_LDAC_CH_A;
 	channelR = DAC7678_LDAC_CH_NONE;
-	if (DAC7678_set_ldac(device, channelW) != DAC7678_OK)
+	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_ldac_value(device, &channelR) != DAC7678_OK)
+	if (DAC7678_get_ldac_reg(device, &channelR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -862,11 +862,11 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 
 	channelW = DAC7678_LDAC_CH_ALL;
 	channelR = DAC7678_LDAC_CH_NONE;
-	if (DAC7678_set_ldac(device, channelW) != DAC7678_OK)
+	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_ldac_value(device, &channelR) != DAC7678_OK)
+	if (DAC7678_get_ldac_reg(device, &channelR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
@@ -874,11 +874,11 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 
 	channelW = DAC7678_LDAC_CH_A | DAC7678_LDAC_CH_H | DAC7678_LDAC_CH_G | DAC7678_LDAC_CH_C;
 	channelR = DAC7678_LDAC_CH_NONE;
-	if (DAC7678_set_ldac(device, channelW) != DAC7678_OK)
+	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (DAC7678_read_ldac_value(device, &channelR) != DAC7678_OK)
+	if (DAC7678_get_ldac_reg(device, &channelR) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
 	}

@@ -72,7 +72,7 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_WRT_NONE,
+	DAC7678_WRT_NONE		= -1,
 	DAC7678_WRT_UPDATE_ON	= 0b0011,
 	DAC7678_WRT_UPDATE_OFF 	= 0b0000,
 	DAC7678_WRT_UPDATE_ALL 	= 0b0010
@@ -100,21 +100,21 @@ typedef enum
 	DAC7678_PWR_ON 				= 0,
 	DAC7678_PWR_PLDOWN_1K 		= 0b00100000,
 	DAC7678_PWR_PLDOWN_100K		= 0b01000000,
-	DAC7678_PWR_HIGH_Z	= 0b01100000,
+	DAC7678_PWR_HIGH_Z			= 0b01100000,
 } DAC7678_PowerOptions;
 
 typedef enum
 {
 	DAC7678_PWR_CH_NONE = 0x00,
-	DAC7678_PWR_CH_A = 0x01,
-	DAC7678_PWR_CH_B = 0x02,
-	DAC7678_PWR_CH_C = 0x04,
-	DAC7678_PWR_CH_D = 0x08,
-	DAC7678_PWR_CH_E = 0x10,
-	DAC7678_PWR_CH_F = 0x20,
-	DAC7678_PWR_CH_G = 0x40,
-	DAC7678_PWR_CH_H = 0x80,
-	DAC7678_PWR_CH_ALL = 0xFF,
+	DAC7678_PWR_CH_A 	= 0x01,
+	DAC7678_PWR_CH_B 	= 0x02,
+	DAC7678_PWR_CH_C 	= 0x04,
+	DAC7678_PWR_CH_D 	= 0x08,
+	DAC7678_PWR_CH_E 	= 0x10,
+	DAC7678_PWR_CH_F 	= 0x20,
+	DAC7678_PWR_CH_G 	= 0x40,
+	DAC7678_PWR_CH_H 	= 0x80,
+	DAC7678_PWR_CH_ALL 	= 0xFF,
 } DAC7678_PowerChannels;
 
 typedef enum
@@ -128,16 +128,16 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_LDAC_CH_NONE = 0x00,
-	DAC7678_LDAC_CH_A = 0x01,
-	DAC7678_LDAC_CH_B = 0x02,
-	DAC7678_LDAC_CH_C = 0x04,
-	DAC7678_LDAC_CH_D = 0x08,
-	DAC7678_LDAC_CH_E = 0x10,
-	DAC7678_LDAC_CH_F = 0x20,
-	DAC7678_LDAC_CH_G = 0x40,
-	DAC7678_LDAC_CH_H = 0x80,
-	DAC7678_LDAC_CH_ALL = 0xFF,
+	DAC7678_LDAC_CH_NONE 	= 0x00,
+	DAC7678_LDAC_CH_A 		= 0x01,
+	DAC7678_LDAC_CH_B 		= 0x02,
+	DAC7678_LDAC_CH_C 		= 0x04,
+	DAC7678_LDAC_CH_D 		= 0x08,
+	DAC7678_LDAC_CH_E 		= 0x10,
+	DAC7678_LDAC_CH_F 		= 0x20,
+	DAC7678_LDAC_CH_G 		= 0x40,
+	DAC7678_LDAC_CH_H 		= 0x80,
+	DAC7678_LDAC_CH_ALL 	= 0xFF,
 } DAC7678_LdacChannel;
 
 typedef enum
@@ -149,30 +149,30 @@ typedef enum
 
 typedef struct
 {
-	I2C_HandleTypeDef *m_hi2c;
-	uint8_t m_address;
-	DAC7678_WriteOptions m_writeOptions;
+	I2C_HandleTypeDef 		*m_hi2c;
+	uint8_t 				m_address;
+	DAC7678_WriteOptions 	m_writeOptions;
 } DAC7678;
 
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
 DAC7678_State DAC7678_deinit(DAC7678 *device);
 DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOptions options);
 DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value);
-DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel);
-DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
-DAC7678_State DAC7678_set_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
-DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
-DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
-DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
+DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel channel);
+DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
+DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions options);
+DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_LdacChannel channelMask);
+DAC7678_State DAC7678_set_int_ref_static_reg(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
+DAC7678_State DAC7678_set_int_ref_flexi_reg(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
 DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
 
-DAC7678_State DAC7678_read_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
-DAC7678_State DAC7678_read_dac_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
-DAC7678_State DAC7678_read_power_value(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_PowerChannels *channelMask);
-DAC7678_State DAC7678_read_clear_value(DAC7678 *device, DAC7678_ClearOptions *options);
-DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *channelMask);
-DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_ReferenceStaticOptions *options);
-DAC7678_State DAC7678_read_internal_reference_flexi(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options);
+DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
+DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
+DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_PowerChannels *channelMask);
+DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *options);
+DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_LdacChannel *channelMask);
+DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceStaticOptions *options);
+DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options);
 
 // TODO:
 DAC7678_State DAC7678_set_values(DAC7678 *device); // dodaj array[8] v device struct
