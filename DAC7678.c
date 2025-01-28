@@ -220,6 +220,32 @@ DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, 
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_get_dac_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[1];
+	data[0] = DAC7678_CMD_READ_DAC_REG << 4 | channel;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	uint8_t readData[2];
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, readData, 2, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_RX;
+	}
+
+	uint16_t result = 0;
+	result |= (uint16_t)(readData[0] << 4);
+	result |= (uint16_t)(readData[1] >> 4);
+	*value = result;
+
+	return DAC7678_OK;
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------
 

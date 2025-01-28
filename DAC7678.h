@@ -153,8 +153,9 @@ DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions opti
 DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
 DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
 DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
-
 DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
+
+DAC7678_State DAC7678_get_dac_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
