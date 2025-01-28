@@ -96,7 +96,7 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_PWR_CH_NONE = -1,
+	DAC7678_PWR_CH_NONE = 0x00,
 	DAC7678_PWR_CH_A = 0x01,
 	DAC7678_PWR_CH_B = 0x02,
 	DAC7678_PWR_CH_C = 0x04,
@@ -119,14 +119,16 @@ typedef enum
 
 typedef enum
 {
+	DAC7678_LDAC_CH_NONE = 0x00,
 	DAC7678_LDAC_CH_A = 0x01,
-	DAC7678_LDAC_CH_A = 0x02,
-	DAC7678_LDAC_CH_A = 0x04,
-	DAC7678_LDAC_CH_A = 0x08,
-	DAC7678_LDAC_CH_A = 0x10,
-	DAC7678_LDAC_CH_A = 0x20,
-	DAC7678_LDAC_CH_A = 0x40,
-	DAC7678_LDAC_CH_A = 0x80,
+	DAC7678_LDAC_CH_B = 0x02,
+	DAC7678_LDAC_CH_C = 0x04,
+	DAC7678_LDAC_CH_D = 0x08,
+	DAC7678_LDAC_CH_E = 0x10,
+	DAC7678_LDAC_CH_F = 0x20,
+	DAC7678_LDAC_CH_G = 0x40,
+	DAC7678_LDAC_CH_H = 0x80,
+	DAC7678_LDAC_CH_ALL = 0xFF,
 } DAC7678_LdacChannel;
 
 typedef struct
@@ -144,7 +146,6 @@ DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC76
 DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
 DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
 DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
-
 DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
 
 // NOTE: run from main loop or timer isr
