@@ -193,7 +193,7 @@ DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions opt
 
 	uint8_t data[3];
 	data[0] = DAC7678_CMD_WRITE_CLR_CODE;
-	data[1] = 0;
+	data[1] = 0x00;
 	data[2] = (uint8_t)options;
 
 	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
@@ -204,7 +204,22 @@ DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions opt
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask)
+{
+	if (!sInit) return DAC7678_ERROR;
 
+	uint8_t data[3];
+	data[0] = DAC7678_CMD_WRITE_LDAC;
+	data[1] = (uint8_t)channelMask;
+	data[2] = 0x00;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	return DAC7678_OK;
+}
 
 
 
