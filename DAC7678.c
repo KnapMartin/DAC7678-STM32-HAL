@@ -318,6 +318,29 @@ DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *chan
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_ReferenceStaticOptions *options)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[1];
+	data[0] = DAC7678_CMD_READ_REF_STATIC << 4;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	uint8_t readData[2];
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, readData, 2, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_RX;
+	}
+
+	*options = (DAC7678_ReferenceStaticOptions)(readData[1] << 4);
+
+	return DAC7678_OK;
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------
 
