@@ -25,12 +25,6 @@ typedef enum
 	DAC7678_ERROR_RX,
 } DAC7678_State;
 
-typedef struct
-{
-	I2C_HandleTypeDef *m_hi2c;
-	uint8_t m_address;
-} DAC7678;
-
 typedef enum
 {
 	DAC7678_CH_NONE = -1,
@@ -69,34 +63,56 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_WRITE_NONE,
-	DAC7678_UPDATE_ON,
-	DAC7678_UPDATE_OFF,
-	DAC7678_UPDATE_ALL
+	DAC7678_WRT_NONE,
+	DAC7678_WRT_UPDATE_ON,
+	DAC7678_WRT_UPDATE_OFF,
+	DAC7678_WRT_UPDATE_ALL
 } DAC7678_WriteOptions;
 
 typedef enum
 {
 	DAC7678_REF_S_NONE,
-	DAC7678_REF_ON,
-	DAC7678_REF_OFF
+	DAC7678_REF_S_ON,
+	DAC7678_REF_S_OFF
 } DAC7678_ReferenceStaticOptions;
 
 typedef enum
 {
 	DAC7678_REF_F_NONE,
-	DAC7678_REF_SYNCH_DAC,
-	DAC7678_REF_ALWAYS_ON,
-	DAC7678_REF_ALWAYS_OFF,
-	DAC7678_REF_AS_STATIC,
+	DAC7678_REF_F_SYNCH_DAC,
+	DAC7678_REF_F_ALWAYS_ON,
+	DAC7678_REF_F_ALWAYS_OFF,
+	DAC7678_REF_F_AS_STATIC,
 } DAC7678_ReferenceFlexiOptions;
 
-DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c);
+typedef enum
+{
+	DAC7678_PWR_NONE,
+	DAC7678_PWR_ON,
+	DAC7678_PWR_PLDOWN_1K,
+	DAC7678_PWR_PLDOWN_100K,
+	DAC7678_PWR_PLDOWN_HIGH_Z,
+} DAC7678_PowerOptions;
 
-DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const DAC7678_WriteOptions options, const uint16_t value);
+typedef struct
+{
+	I2C_HandleTypeDef *m_hi2c;
+	uint8_t m_address;
+	DAC7678_WriteOptions m_writeOptions;
+} DAC7678;
+
+DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
+DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOptions options);
+DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value);
 DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel);
 DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
 DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
+
+DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options);
+
+// NOTE: run from main loop or timer isr
+void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
+void test_sine(DAC7678 *dac, uint16_t amplitude, uint16_t numSamples);
 
 #ifdef __cplusplus
 }
