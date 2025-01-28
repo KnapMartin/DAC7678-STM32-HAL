@@ -168,6 +168,48 @@ DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC767
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[3];
+	data[0] = DAC7678_CMD_WRITE_PWR << 4;
+	uint16_t channels = channelMask << 5;
+	data[1] = (uint8_t)(channels >> 8);
+	data[1] = data[1] | options;
+	data[2] = (uint8_t)(channels & 0xFF);
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	return DAC7678_OK;
+}
+
+DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[3];
+	data[0] = DAC7678_CMD_WRITE_CLR_CODE;
+	data[1] = 0;
+	data[2] = (uint8_t)options;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	return DAC7678_OK;
+}
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------------
+
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff)
 {
 	if (amplitude > DAC7678_MAX_VALUE) return;

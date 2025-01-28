@@ -48,8 +48,8 @@ typedef enum
 	DAC7678_CMD_READ_DAC_REG       = 0b0001,
 	DAC7678_CMD_WRITE_UPDATE       = 0b0011,
 	DAC7678_CMD_WRITE_UPDATE_ALL   = 0b0010,
-	DAC7678_CMD_WRITE_OFF          = 0b0100,
-	DAC7678_CMD_READ_OFF           = 0b0100,
+	DAC7678_CMD_WRITE_PWR          = 0b0100,
+	DAC7678_CMD_READ_PWR           = 0b0100,
 	DAC7678_CMD_WRITE_CLR_CODE     = 0b0101,
 	DAC7678_CMD_READ_CLR_CODE      = 0b0101,
 	DAC7678_CMD_WRITE_LDAC         = 0b0110,
@@ -87,12 +87,35 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_PWR_NONE,
-	DAC7678_PWR_ON,
-	DAC7678_PWR_PLDOWN_1K,
-	DAC7678_PWR_PLDOWN_100K,
-	DAC7678_PWR_PLDOWN_HIGH_Z,
+	DAC7678_PWR_NONE 			= - 1,
+	DAC7678_PWR_ON 				= 0,
+	DAC7678_PWR_PLDOWN_1K 		= 0b00100000,
+	DAC7678_PWR_PLDOWN_100K		= 0b01000000,
+	DAC7678_PWR_PLDOWN_HIGH_Z	= 0b01100000,
 } DAC7678_PowerOptions;
+
+typedef enum
+{
+	DAC7678_PWR_CH_NONE = -1,
+	DAC7678_PWR_CH_A = 0x01,
+	DAC7678_PWR_CH_B = 0x02,
+	DAC7678_PWR_CH_C = 0x04,
+	DAC7678_PWR_CH_D = 0x08,
+	DAC7678_PWR_CH_E = 0x10,
+	DAC7678_PWR_CH_F = 0x20,
+	DAC7678_PWR_CH_G = 0x40,
+	DAC7678_PWR_CH_H = 0x80,
+	DAC7678_PWR_CH_ALL = 0xFF,
+} DAC7678_PowerChannels;
+
+typedef enum
+{
+	DAC7678_CLR_NONE = -1,
+	DAC7678_CLR_ZERO 	= 0b00000000,
+	DAC7678_CLR_MID 	= 0b00010000,
+	DAC7678_CLR_FULL	= 0b00100000,
+	DAC7678_CLR_DISABLE = 0b00110000,
+} DAC7678_ClearOptions;
 
 typedef struct
 {
@@ -107,8 +130,8 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel);
 DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
 DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
-
-DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options);
+DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
+DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
