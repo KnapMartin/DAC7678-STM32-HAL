@@ -221,6 +221,22 @@ DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channe
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[3];
+	data[0] = DAC7678_CMD_RESET;
+	data[1] = (uint8_t)options;
+	data[2] = 0x00;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	return DAC7678_OK;
+}
 
 
 // ---------------------------------------------------------------------------------------------------------------

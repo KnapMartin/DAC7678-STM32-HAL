@@ -131,6 +131,13 @@ typedef enum
 	DAC7678_LDAC_CH_ALL = 0xFF,
 } DAC7678_LdacChannel;
 
+typedef enum
+{
+	DAC7678_RST 				= 0x00,
+	DAC7678_RST_SET_HS_MODE		= 0x40,
+	DAC7678_RST_KEEP_HS_MODE	= 0x80,
+} DAC7678_ResetOptions;
+
 typedef struct
 {
 	I2C_HandleTypeDef *m_hi2c;
@@ -147,6 +154,8 @@ DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC767
 DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
 DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
 DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
+
+DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
