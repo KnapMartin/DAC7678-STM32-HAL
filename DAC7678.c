@@ -13,8 +13,6 @@
 
 static uint8_t sInit = 0;
 
-static DAC7678_State select_register(DAC7678 *device, const uint8_t address);
-
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address)
 {
 	device->m_hi2c = hi2c;
@@ -341,6 +339,29 @@ DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_Re
 	return DAC7678_OK;
 }
 
+DAC7678_State DAC7678_read_internal_reference_flexi(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[1];
+	data[0] = DAC7678_CMD_READ_REF_FLEX << 4;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	uint8_t readData[2];
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, readData, 2, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_RX;
+	}
+
+	*options = (DAC7678_ReferenceFlexiOptions)(readData[1] << 4);
+
+	return DAC7678_OK;
+}
+
 
 // ---------------------------------------------------------------------------------------------------------------
 
@@ -373,16 +394,4 @@ void test_sine(DAC7678 *dac, uint16_t amplitude, uint16_t numSamples)
 	if (index >= numSamples) index = 0;
 }
 
-static DAC7678_State select_register(DAC7678 *device, const uint8_t address)
-{
-//	uint8_t data[1];
-//	data[0] = address << 4 | channel;
-//
-//	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
-//	{
-//		return DAC7678_ERROR_TX;
-//	}
-
-	return DAC7678_OK;
-}
 
