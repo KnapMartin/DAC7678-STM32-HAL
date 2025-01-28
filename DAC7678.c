@@ -267,7 +267,7 @@ DAC7678_State DAC7678_read_power_value(DAC7678 *device, DAC7678_PowerOptions *op
 	}
 
 	*options = (DAC7678_PowerOptions)(readData[0] << 5);
-	*channelMask = (DAC7678_PowerChannels)readData[1];
+	*channelMask = (DAC7678_PowerChannels)(readData[1]);
 
 	return DAC7678_OK;
 }
@@ -291,6 +291,29 @@ DAC7678_State DAC7678_read_clear_value(DAC7678 *device, DAC7678_ClearOptions *op
 	}
 
 	*options = (DAC7678_ClearOptions)(readData[1] << 4);
+
+	return DAC7678_OK;
+}
+
+DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *channelMask)
+{
+	if (!sInit) return DAC7678_ERROR;
+
+	uint8_t data[1];
+	data[0] = DAC7678_CMD_READ_LDAC << 4;
+
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_TX;
+	}
+
+	uint8_t readData[2];
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, readData, 2, DAC7678_TIMEOUT) != HAL_OK)
+	{
+		return DAC7678_ERROR_RX;
+	}
+
+	*channelMask = (DAC7678_LdacChannel)(readData[1]);
 
 	return DAC7678_OK;
 }
