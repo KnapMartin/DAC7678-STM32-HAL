@@ -16,6 +16,15 @@ extern "C" {
 
 #define DAC7678_TIMEOUT 	100 // ms
 #define DAC7678_MAX_VALUE 	4095
+#define DAC7678_TEST		// toggle tests
+
+#ifdef DAC7678_TEST
+typedef enum
+{
+	DAC7678_TST_PASS,
+	DAC7678_TST_FAIL,
+} DAC7678_Test;
+#endif
 
 typedef enum
 {
@@ -64,19 +73,21 @@ typedef enum
 typedef enum
 {
 	DAC7678_WRT_NONE,
-	DAC7678_WRT_UPDATE_ON,
-	DAC7678_WRT_UPDATE_OFF,
-	DAC7678_WRT_UPDATE_ALL
+	DAC7678_WRT_UPDATE_ON	= 0b0011,
+	DAC7678_WRT_UPDATE_OFF 	= 0b0000,
+	DAC7678_WRT_UPDATE_ALL 	= 0b0010
 } DAC7678_WriteOptions;
 
 typedef enum
 {
+	DAC7678_REF_S_NONE	= -1,
 	DAC7678_REF_S_ON 	= 0x10,
 	DAC7678_REF_S_OFF 	= 0x00
 } DAC7678_ReferenceStaticOptions;
 
 typedef enum
 {
+	DAC7678_REF_F_NONE 			= -1,
 	DAC7678_REF_F_SYNCH_DAC 	= 0b01000000,
 	DAC7678_REF_F_ALWAYS_ON 	= 0b01010000,
 	DAC7678_REF_F_ALWAYS_OFF 	= 0b01100000,
@@ -89,7 +100,7 @@ typedef enum
 	DAC7678_PWR_ON 				= 0,
 	DAC7678_PWR_PLDOWN_1K 		= 0b00100000,
 	DAC7678_PWR_PLDOWN_100K		= 0b01000000,
-	DAC7678_PWR_PLDOWN_HIGH_Z	= 0b01100000,
+	DAC7678_PWR_HIGH_Z	= 0b01100000,
 } DAC7678_PowerOptions;
 
 typedef enum
@@ -144,14 +155,15 @@ typedef struct
 } DAC7678;
 
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
+DAC7678_State DAC7678_deinit(DAC7678 *device);
 DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOptions options);
 DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value);
 DAC7678_State DAC7678_update(DAC7678 *device, const DAC7678_Channel channel);
+DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
+DAC7678_State DAC7678_set_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
+DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
 DAC7678_State DAC7678_set_internal_reference_static(DAC7678 *device, const DAC7678_ReferenceStaticOptions options);
 DAC7678_State DAC7678_set_internal_reference_flexi(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
-DAC7678_State DAC7678_set_power(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channelMask);
-DAC7678_State DAC7678_clear_code(DAC7678 *device, const DAC7678_ClearOptions options);
-DAC7678_State DAC7678_set_ldac(DAC7678 *device, const DAC7678_LdacChannel channelMask);
 DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
 
 DAC7678_State DAC7678_read_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
@@ -160,12 +172,24 @@ DAC7678_State DAC7678_read_power_value(DAC7678 *device, DAC7678_PowerOptions *op
 DAC7678_State DAC7678_read_clear_value(DAC7678 *device, DAC7678_ClearOptions *options);
 DAC7678_State DAC7678_read_ldac_value(DAC7678 *device, DAC7678_LdacChannel *channelMask);
 DAC7678_State DAC7678_read_internal_reference_static(DAC7678 *device, DAC7678_ReferenceStaticOptions *options);
-
 DAC7678_State DAC7678_read_internal_reference_flexi(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options);
+
+// TODO:
+DAC7678_State DAC7678_set_values(DAC7678 *device); // dodaj array[8] v device struct
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
 void test_sine(DAC7678 *dac, uint16_t amplitude, uint16_t numSamples);
+
+#ifdef DAC7678_TEST
+DAC7678_Test test_wr_input_register(DAC7678 *device);
+DAC7678_Test test_wr_dac_register(DAC7678 *device);
+DAC7678_Test test_wr_reference_register_static(DAC7678 *device);
+DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device);
+DAC7678_Test test_wr_power_register(DAC7678 *device);
+DAC7678_Test test_wr_clear_register(DAC7678 *device);
+DAC7678_Test test_wr_ldac_register(DAC7678 *device);
+#endif
 
 #ifdef __cplusplus
 }
