@@ -79,7 +79,7 @@ DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel chan
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_PowerChannels channel_mask)
+DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_ChannelMsk channel_mask)
 {
 	if (!s_init) return DAC7678_ERROR;
 
@@ -114,7 +114,7 @@ DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions 
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_LdacChannel channel_mask)
+DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_ChannelMsk channel_mask)
 {
 	if (!s_init) return DAC7678_ERROR;
 
@@ -236,7 +236,7 @@ DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_PowerChannels *channel_mask)
+DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_ChannelMsk *channel_mask)
 {
 	if (!s_init) return DAC7678_ERROR;
 
@@ -255,7 +255,7 @@ DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *optio
 	}
 
 	*options = (DAC7678_PowerOptions)(read_data[0] << 5);
-	*channel_mask = (DAC7678_PowerChannels)(read_data[1]);
+	*channel_mask = (DAC7678_ChannelMsk)(read_data[1]);
 
 	return DAC7678_OK;
 }
@@ -283,7 +283,7 @@ DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *optio
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_LdacChannel *channel_mask)
+DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_ChannelMsk *channel_mask)
 {
 	if (!s_init) return DAC7678_ERROR;
 
@@ -301,7 +301,7 @@ DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_LdacChannel *channel
 		return DAC7678_ERROR_RX;
 	}
 
-	*channel_mask = (DAC7678_LdacChannel)(read_data[1]);
+	*channel_mask = (DAC7678_ChannelMsk)(read_data[1]);
 
 	return DAC7678_OK;
 }
@@ -722,13 +722,13 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 {
 	DAC7678_PowerOptions optionsW;
 	DAC7678_PowerOptions optionsR;
-	DAC7678_PowerChannels channelsW;
-	DAC7678_PowerChannels channelsR;
+	DAC7678_ChannelMsk channelsW;
+	DAC7678_ChannelMsk channelsR;
 
 	optionsW = DAC7678_PWR_ON;
 	optionsR = DAC7678_PWR_NONE;
-	channelsW = DAC7678_PWR_CH_ALL;
-	channelsR = DAC7678_PWR_CH_NONE;
+	channelsW = DAC7678_CHM_ALL;
+	channelsR = DAC7678_CHM_NONE;
 	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -742,8 +742,8 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 
 	optionsW = DAC7678_PWR_PLDOWN_1K;
 	optionsR = DAC7678_PWR_NONE;
-	channelsW = DAC7678_PWR_CH_D;
-	channelsR = DAC7678_PWR_CH_NONE;
+	channelsW = DAC7678_CHM_D;
+	channelsR = DAC7678_CHM_NONE;
 	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -757,8 +757,8 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 
 	optionsW = DAC7678_PWR_PLDOWN_100K;
 	optionsR = DAC7678_PWR_NONE;
-	channelsW = DAC7678_PWR_CH_A | DAC7678_PWR_CH_C | DAC7678_PWR_CH_H;
-	channelsR = DAC7678_PWR_CH_NONE;
+	channelsW = DAC7678_CHM_A | DAC7678_CHM_C | DAC7678_CHM_H;
+	channelsR = DAC7678_CHM_NONE;
 	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -774,8 +774,8 @@ DAC7678_Test test_wr_power_register(DAC7678 *device)
 
 	optionsW = DAC7678_PWR_HIGH_Z;
 	optionsR = DAC7678_PWR_NONE;
-	channelsW = DAC7678_PWR_CH_F | DAC7678_PWR_CH_D | DAC7678_PWR_CH_H;
-	channelsR = DAC7678_PWR_CH_NONE;
+	channelsW = DAC7678_CHM_F | DAC7678_CHM_D | DAC7678_CHM_H;
+	channelsR = DAC7678_CHM_NONE;
 	if (DAC7678_set_power_reg(device, optionsW, channelsW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -848,11 +848,11 @@ DAC7678_Test test_wr_clear_register(DAC7678 *device)
 
 DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 {
-	DAC7678_LdacChannel channelW;
-	DAC7678_LdacChannel channelR;
+	DAC7678_ChannelMsk channelW;
+	DAC7678_ChannelMsk channelR;
 
-	channelW = DAC7678_LDAC_CH_A;
-	channelR = DAC7678_LDAC_CH_NONE;
+	channelW = DAC7678_CHM_A;
+	channelR = DAC7678_CHM_NONE;
 	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -863,8 +863,8 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 	}
 	if (channelW != channelR) return DAC7678_TST_FAIL;
 
-	channelW = DAC7678_LDAC_CH_ALL;
-	channelR = DAC7678_LDAC_CH_NONE;
+	channelW = DAC7678_CHM_ALL;
+	channelR = DAC7678_CHM_NONE;
 	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
@@ -875,8 +875,8 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 	}
 	if (channelW != channelR) return DAC7678_TST_FAIL;
 
-	channelW = DAC7678_LDAC_CH_A | DAC7678_LDAC_CH_H | DAC7678_LDAC_CH_G | DAC7678_LDAC_CH_C;
-	channelR = DAC7678_LDAC_CH_NONE;
+	channelW = DAC7678_CHM_A | DAC7678_CHM_H | DAC7678_CHM_G | DAC7678_CHM_C;
+	channelR = DAC7678_CHM_NONE;
 	if (DAC7678_set_ldac_reg(device, channelW) != DAC7678_OK)
 	{
 		return DAC7678_TST_FAIL;
