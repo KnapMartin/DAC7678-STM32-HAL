@@ -45,8 +45,8 @@ DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOpti
 DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value)
 {
 	if (!s_init) return DAC7678_ERROR;
-	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR_IN_VALUE;
-	if (channel > DAC7678_MAX_CHANNEL) return DAC7678_ERROR_CH_VALUE;
+	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR_INVALID_VALUE;
+	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
 	uint8_t data[3];
 	data[0] = (uint8_t)(device->m_write_options | channel);
@@ -64,7 +64,7 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel channel)
 {
 	if (!s_init) return DAC7678_ERROR;
-	if (channel > DAC7678_MAX_CHANNEL) return DAC7678_ERROR_CH_VALUE;
+	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
 	uint8_t data[3];
 	data[0] = DAC7678_CMD_UPDATE_DAC_REG;
@@ -185,7 +185,7 @@ DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
 DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
 {
 	if (!s_init) return DAC7678_ERROR;
-	if (channel > DAC7678_MAX_CHANNEL) return DAC7678_ERROR_CH_VALUE;
+	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
 	uint8_t data[1];
 	data[0] = (uint8_t)(DAC7678_CMD_READ_IN_REG | channel);
@@ -212,7 +212,7 @@ DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, 
 DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
 {
 	if (!s_init) return DAC7678_ERROR;
-	if (channel > DAC7678_MAX_CHANNEL) return DAC7678_ERROR_CH_VALUE;
+	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
 	uint8_t data[1];
 	data[0] = (uint8_t)(DAC7678_CMD_READ_DAC_REG | channel);
