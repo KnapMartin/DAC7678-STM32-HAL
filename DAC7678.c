@@ -42,7 +42,7 @@ DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOpti
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value)
+DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_ChannelIdx channel, const uint16_t value)
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR_INVALID_VALUE;
@@ -61,7 +61,32 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, 
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel channel)
+DAC7678_State DAC7678_set_values(DAC7678 *device)
+{
+	if (!s_init) return DAC7678_ERROR;
+
+	for (uint8_t channel = 0; channel < DAC7678_MAX_CHANNELS; ++channel)
+	{
+		if (device->values[channel] > DAC7678_MAX_VALUE) return DAC7678_ERROR_INVALID_VALUE;
+	}
+
+	for (uint8_t channel = 0; channel < DAC7678_MAX_CHANNELS; ++channel)
+	{
+		uint8_t data[3];
+		data[0] = (uint8_t)(device->m_write_options | channel);
+		data[1] = (uint8_t)(device->values[channel] >> 4);
+		data[2] = (uint8_t)(device->values[channel] << 4);
+
+		if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+		{
+			return DAC7678_ERROR_TX;
+		}
+	}
+
+	return DAC7678_OK;
+}
+
+DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx channel)
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
@@ -182,7 +207,7 @@ DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
+DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_ChannelIdx channel, uint16_t *value)
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
@@ -209,7 +234,7 @@ DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, 
 	return DAC7678_OK;
 }
 
-DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value)
+DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx channel, uint16_t *value)
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
@@ -890,8 +915,36 @@ DAC7678_Test test_wr_ldac_register(DAC7678 *device)
 	return DAC7678_TST_PASS;
 }
 
+DAC7678_Test test_wr_values(DAC7678 *device)
+{
+	DAC7678_set_write_options(device, DAC7678_WRT_UPDATE_ON);
+
+	uint16_t valueW = 1000;
+	uint16_t valueR;
+	device->values[0] = valueW;
+	device->values[1] = valueW;
+	device->values[2] = valueW;
+	device->values[3] = valueW;
+	device->values[4] = valueW;
+	device->values[5] = valueW;
+	device->values[6] = valueW;
+	device->values[7] = valueW;
+	DAC7678_set_values(device);
+
+	for (uint8_t channel = 0; channel < DAC7678_MAX_CHANNELS; ++channel)
+	{
+		DAC7678_get_value(device, channel, &valueR);
+
+		if (valueW != valueR) return DAC7678_TST_FAIL;
+	}
+
+	return DAC7678_TST_PASS;
+}
+
 void test_run_all(DAC7678 *dac)
 {
+	printf("testing all...\r\n");
+
 	DAC7678_set_write_options(dac, DAC7678_WRT_UPDATE_OFF);
 	if (test_wr_input_register(dac) != DAC7678_TST_PASS)
 	{
@@ -938,6 +991,11 @@ void test_run_all(DAC7678 *dac)
 	if (test_wr_ldac_register(dac) != DAC7678_TST_PASS)
 	{
 		printf("test 8 failed\r\n");
+	}
+
+	if (test_wr_values(dac) != DAC7678_TST_PASS)
+	{
+		printf("test 9 failed\r\n");
 	}
 }
 

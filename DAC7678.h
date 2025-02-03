@@ -52,7 +52,21 @@ typedef enum
 	DAC7678_CH_G 	= 0x06,
 	DAC7678_CH_H 	= 0x07,
 	DAC7678_CH_ALL  = 0xFF
-} DAC7678_Channel;
+} DAC7678_ChannelIdx;
+
+typedef enum
+{
+	DAC7678_CHM_NONE	= 0x00,
+	DAC7678_CHM_A 		= 0x01,
+	DAC7678_CHM_B 		= 0x02,
+	DAC7678_CHM_C 		= 0x04,
+	DAC7678_CHM_D 		= 0x08,
+	DAC7678_CHM_E 		= 0x10,
+	DAC7678_CHM_F 		= 0x20,
+	DAC7678_CHM_G 		= 0x40,
+	DAC7678_CHM_H 		= 0x80,
+	DAC7678_CHM_ALL		= 0xFF,
+} DAC7678_ChannelMsk;
 
 typedef enum
 {
@@ -111,20 +125,6 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_CHM_NONE	= 0x00,
-	DAC7678_CHM_A 		= 0x01,
-	DAC7678_CHM_B 		= 0x02,
-	DAC7678_CHM_C 		= 0x04,
-	DAC7678_CHM_D 		= 0x08,
-	DAC7678_CHM_E 		= 0x10,
-	DAC7678_CHM_F 		= 0x20,
-	DAC7678_CHM_G 		= 0x40,
-	DAC7678_CHM_H 		= 0x80,
-	DAC7678_CHM_ALL		= 0xFF,
-} DAC7678_ChannelMsk;
-
-typedef enum
-{
 	DAC7678_CLR_NONE 	= -1,
 	DAC7678_CLR_ZERO 	= 0b00000000,
 	DAC7678_CLR_MID 	= 0b00010000,
@@ -144,13 +144,15 @@ typedef struct
 	I2C_HandleTypeDef		*m_hi2c;
 	uint8_t					m_address;
 	DAC7678_WriteOptions	m_write_options;
+	uint16_t				values[8]; // A, B, C, D, E, F, G, H respectively
 } DAC7678;
 
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
 DAC7678_State DAC7678_deinit(DAC7678 *device);
 DAC7678_State DAC7678_set_write_options(DAC7678 *device, const DAC7678_WriteOptions options);
-DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_Channel channel, const uint16_t value);
-DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_Channel channel);
+DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_ChannelIdx channel_idx, const uint16_t value);
+DAC7678_State DAC7678_set_values(DAC7678 *device);
+DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx channel_idx);
 DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions options, const DAC7678_ChannelMsk channel_mask);
 DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions options);
 DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_ChannelMsk channel_mask);
@@ -158,16 +160,13 @@ DAC7678_State DAC7678_set_int_ref_static_reg(DAC7678 *device, const DAC7678_Refe
 DAC7678_State DAC7678_set_int_ref_flexi_reg(DAC7678 *device, const DAC7678_ReferenceFlexiOptions options);
 DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options);
 
-DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
-DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_Channel channel, uint16_t *value);
+DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_ChannelIdx channel_idx, uint16_t *value);
+DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx channel_idx, uint16_t *value);
 DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *options, DAC7678_ChannelMsk *channel_mask);
 DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *options);
 DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_ChannelMsk *channel_mask);
 DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceStaticOptions *options);
 DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options);
-
-// TODO:
-DAC7678_State DAC7678_set_values(DAC7678 *device); // dodaj array[8] v device struct
 
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
@@ -181,6 +180,7 @@ DAC7678_Test test_wr_reference_register_flexi(DAC7678 *device);
 DAC7678_Test test_wr_power_register(DAC7678 *device);
 DAC7678_Test test_wr_clear_register(DAC7678 *device);
 DAC7678_Test test_wr_ldac_register(DAC7678 *device);
+DAC7678_Test test_wr_values(DAC7678 *device);
 void test_run_all(DAC7678 *device);
 #endif
 
