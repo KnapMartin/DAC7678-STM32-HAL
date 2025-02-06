@@ -20,7 +20,7 @@ extern "C" {
 
 #define DAC7678_TEST		// toggle tests
 
-//#define DAC7678_INTERRUPTS // toggle interrupts
+#define DAC7678_INTERRUPTS // toggle interrupts
 
 #ifdef DAC7678_TEST
 typedef enum
