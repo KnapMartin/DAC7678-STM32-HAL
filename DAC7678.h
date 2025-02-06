@@ -20,6 +20,8 @@ extern "C" {
 
 #define DAC7678_TEST		// toggle tests
 
+//#define DAC7678_INTERRUPTS // toggle interrupts
+
 #ifdef DAC7678_TEST
 typedef enum
 {
@@ -38,6 +40,8 @@ typedef enum
 	DAC7678_ERROR_RX,
 	DAC7678_ERROR_INVALID_VALUE,
 	DAC7678_ERROR_INVALID_CHANNEL,
+	DAC7678_ERROR_TIMEOUT_TX,
+	DAC7678_ERROR_TIMEOUT_RX,
 } DAC7678_State;
 
 typedef enum
