@@ -46,7 +46,7 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_ChannelIdx channe
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR_INVALID_VALUE;
-	if ((channel > DAC7678_MAX_CHANNELS) && (channel != 0xFF)) return DAC7678_ERROR_INVALID_CHANNEL;
+	if ((channel > DAC7678_MAX_CHANNELS) && (channel != 0x0F)) return DAC7678_ERROR_INVALID_CHANNEL;
 
 	device->m_data_tx[0] = (uint8_t)(device->m_write_options | channel);
 	device->m_data_tx[1] = (uint8_t)(value >> 4);
