@@ -55,7 +55,7 @@ typedef enum
 	DAC7678_CH_F 	= 0x05,
 	DAC7678_CH_G 	= 0x06,
 	DAC7678_CH_H 	= 0x07,
-	DAC7678_CH_ALL  = 0xFF
+	DAC7678_CH_ALL  = 0x0F
 } DAC7678_ChannelIdx;
 
 typedef enum
