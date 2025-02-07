@@ -20,7 +20,7 @@ extern "C" {
 
 #define DAC7678_TEST		// toggle tests
 
-#define DAC7678_INTERRUPTS // toggle interrupts
+//#define DAC7678_INTERRUPTS // toggle interrupts
 
 #ifdef DAC7678_TEST
 typedef enum
@@ -33,15 +33,15 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_NONE = -1,
-	DAC7678_OK,
-	DAC7678_ERROR,
-	DAC7678_ERROR_TX,
-	DAC7678_ERROR_RX,
-	DAC7678_ERROR_INVALID_VALUE,
-	DAC7678_ERROR_INVALID_CHANNEL,
-	DAC7678_ERROR_TIMEOUT_TX,
-	DAC7678_ERROR_TIMEOUT_RX,
+	DAC7678_NONE 					= -1,
+	DAC7678_OK						= 0,
+	DAC7678_ERROR					= 1,
+	DAC7678_ERROR_TX				= 2,
+	DAC7678_ERROR_RX				= 3,
+	DAC7678_ERROR_INVALID_VALUE		= 4,
+	DAC7678_ERROR_INVALID_CHANNEL	= 5,
+	DAC7678_ERROR_TIMEOUT_TX		= 6,
+	DAC7678_ERROR_TIMEOUT_RX		= 7,
 } DAC7678_State;
 
 typedef enum
@@ -149,6 +149,8 @@ typedef struct
 	uint8_t					m_address;
 	DAC7678_WriteOptions	m_write_options;
 	uint16_t				values[8]; // A, B, C, D, E, F, G, H respectively
+	uint8_t					m_data_tx[4];
+	uint8_t					m_data_rx[4];
 } DAC7678;
 
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
