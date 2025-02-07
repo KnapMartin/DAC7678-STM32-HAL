@@ -18,7 +18,9 @@ extern "C" {
 #define DAC7678_MAX_VALUE 		4095
 #define DAC7678_MAX_CHANNELS	8
 
-#define DAC7678_TEST		// toggle tests
+//#define DAC7678_TEST		// toggle tests
+
+#define DAC7678_INTERRUPTS // toggle interrupts
 
 #ifdef DAC7678_TEST
 typedef enum
@@ -31,13 +33,15 @@ typedef enum
 
 typedef enum
 {
-	DAC7678_NONE = -1,
-	DAC7678_OK,
-	DAC7678_ERROR,
-	DAC7678_ERROR_TX,
-	DAC7678_ERROR_RX,
-	DAC7678_ERROR_INVALID_VALUE,
-	DAC7678_ERROR_INVALID_CHANNEL,
+	DAC7678_NONE 					= -1,
+	DAC7678_OK						= 0,
+	DAC7678_ERROR					= 1,
+	DAC7678_ERROR_TX				= 2,
+	DAC7678_ERROR_RX				= 3,
+	DAC7678_ERROR_INVALID_VALUE		= 4,
+	DAC7678_ERROR_INVALID_CHANNEL	= 5,
+	DAC7678_ERROR_TIMEOUT_TX		= 6,
+	DAC7678_ERROR_TIMEOUT_RX		= 7,
 } DAC7678_State;
 
 typedef enum
@@ -51,7 +55,7 @@ typedef enum
 	DAC7678_CH_F 	= 0x05,
 	DAC7678_CH_G 	= 0x06,
 	DAC7678_CH_H 	= 0x07,
-	DAC7678_CH_ALL  = 0xFF
+	DAC7678_CH_ALL  = 0x0F
 } DAC7678_ChannelIdx;
 
 typedef enum
@@ -145,6 +149,8 @@ typedef struct
 	uint8_t					m_address;
 	DAC7678_WriteOptions	m_write_options;
 	uint16_t				values[8]; // A, B, C, D, E, F, G, H respectively
+	uint8_t					m_data_tx[4];
+	uint8_t					m_data_rx[4];
 } DAC7678;
 
 DAC7678_State DAC7678_init(DAC7678 *device, I2C_HandleTypeDef *hi2c, const uint8_t address);
@@ -168,11 +174,10 @@ DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_ChannelMsk *channel_
 DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceStaticOptions *options);
 DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFlexiOptions *options);
 
+#ifdef DAC7678_TEST
 // NOTE: run from main loop or timer isr
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff);
 void test_sine(DAC7678 *dac, uint16_t amplitude, uint16_t num_samples);
-
-#ifdef DAC7678_TEST
 DAC7678_Test test_wr_input_register(DAC7678 *device);
 DAC7678_Test test_wr_dac_register(DAC7678 *device);
 DAC7678_Test test_wr_reference_register_static(DAC7678 *device);

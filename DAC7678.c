@@ -7,9 +7,11 @@
 
 #include "DAC7678.h"
 
+#ifdef DAC7678_TEST
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#endif
 
 static uint8_t s_init = 0;
 
@@ -46,14 +48,22 @@ DAC7678_State DAC7678_set_value(DAC7678 *device, const DAC7678_ChannelIdx channe
 {
 	if (!s_init) return DAC7678_ERROR;
 	if (value > DAC7678_MAX_VALUE) return DAC7678_ERROR_INVALID_VALUE;
-	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
+	if ((channel > DAC7678_MAX_CHANNELS) && (channel != 0x0F)) return DAC7678_ERROR_INVALID_CHANNEL;
 
-	uint8_t data[3];
-	data[0] = (uint8_t)(device->m_write_options | channel);
-	data[1] = (uint8_t)(value >> 4);
-	data[2] = (uint8_t)(value << 4);
+	device->m_data_tx[0] = (uint8_t)(device->m_write_options | channel);
+	device->m_data_tx[1] = (uint8_t)(value >> 4);
+	device->m_data_tx[2] = (uint8_t)(value << 4);
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -72,12 +82,20 @@ DAC7678_State DAC7678_set_values(DAC7678 *device)
 
 	for (uint8_t channel = 0; channel < DAC7678_MAX_CHANNELS; ++channel)
 	{
-		uint8_t data[3];
-		data[0] = (uint8_t)(device->m_write_options | channel);
-		data[1] = (uint8_t)(device->values[channel] >> 4);
-		data[2] = (uint8_t)(device->values[channel] << 4);
+		device->m_data_tx[0] = (uint8_t)(device->m_write_options | channel);
+		device->m_data_tx[1] = (uint8_t)(device->values[channel] >> 4);
+		device->m_data_tx[2] = (uint8_t)(device->values[channel] << 4);
 
-		if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+		uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+		while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+		{
+			if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+		}
+		if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+		if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 		{
 			return DAC7678_ERROR_TX;
 		}
@@ -91,12 +109,20 @@ DAC7678_State DAC7678_update_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx c
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_UPDATE_DAC_REG;
-	data[1] = 0x00;
-	data[2] = 0x00;
+	device->m_data_tx[0] = DAC7678_CMD_UPDATE_DAC_REG;
+	device->m_data_tx[1] = 0x00;
+	device->m_data_tx[2] = 0x00;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -108,13 +134,21 @@ DAC7678_State DAC7678_set_power_reg(DAC7678 *device, const DAC7678_PowerOptions 
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_PWR;
+	device->m_data_tx[0] = DAC7678_CMD_WRITE_PWR;
 	uint16_t channels = channel_mask << 5;
-	data[1] = (uint8_t)((channels >> 8) | options);
-	data[2] = (uint8_t)(channels & 0xFF);
+	device->m_data_tx[1] = (uint8_t)((channels >> 8) | options);
+	device->m_data_tx[2] = (uint8_t)(channels & 0xFF);
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -126,12 +160,20 @@ DAC7678_State DAC7678_set_clear_reg(DAC7678 *device, const DAC7678_ClearOptions 
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_CLR_CODE;
-	data[1] = 0x00;
-	data[2] = (uint8_t)options;
+	device->m_data_tx[0] = DAC7678_CMD_WRITE_CLR_CODE;
+	device->m_data_tx[1] = 0x00;
+	device->m_data_tx[2] = (uint8_t)options;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -143,12 +185,20 @@ DAC7678_State DAC7678_set_ldac_reg(DAC7678 *device, const DAC7678_ChannelMsk cha
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_LDAC;
-	data[1] = (uint8_t)channel_mask;
-	data[2] = 0x00;
+	device->m_data_tx[0] = DAC7678_CMD_WRITE_LDAC;
+	device->m_data_tx[1] = (uint8_t)channel_mask;
+	device->m_data_tx[2] = 0x00;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -160,12 +210,20 @@ DAC7678_State DAC7678_set_int_ref_static_reg(DAC7678 *device, const DAC7678_Refe
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_REF_STATIC;
-	data[1] = 0x00;
-	data[2] = (uint8_t)options;
+	device->m_data_tx[0] = DAC7678_CMD_WRITE_REF_STATIC;
+	device->m_data_tx[1] = 0x00;
+	device->m_data_tx[2] = (uint8_t)options;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -177,12 +235,20 @@ DAC7678_State DAC7678_set_int_ref_flexi_reg(DAC7678 *device, const DAC7678_Refer
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_WRITE_REF_FLEX;
-	data[1] = (uint8_t)options;
-	data[2] = 0x00;
+	device->m_data_tx[0] = DAC7678_CMD_WRITE_REF_FLEX;
+	device->m_data_tx[1] = (uint8_t)options;
+	device->m_data_tx[2] = 0x00;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -194,12 +260,20 @@ DAC7678_State DAC7678_reset(DAC7678 *device, const DAC7678_ResetOptions options)
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[3];
-	data[0] = DAC7678_CMD_RESET;
-	data[1] = (uint8_t)options;
-	data[2] = 0x00;
+	device->m_data_tx[0] = DAC7678_CMD_RESET;
+	device->m_data_tx[1] = (uint8_t)options;
+	device->m_data_tx[2] = 0x00;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 3, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeout = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeout) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 3, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
@@ -212,23 +286,39 @@ DAC7678_State DAC7678_get_value(DAC7678 *device, const DAC7678_ChannelIdx channe
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
-	uint8_t data[1];
-	data[0] = (uint8_t)(DAC7678_CMD_READ_IN_REG | channel);
+	device->m_data_tx[0] = (uint8_t)(DAC7678_CMD_READ_IN_REG | channel);
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
 	uint16_t result = 0;
-	result |= (uint16_t)(read_data[0] << 4);
-	result |= (uint16_t)(read_data[1] >> 4);
+	result |= (uint16_t)(device->m_data_rx[0] << 4);
+	result |= (uint16_t)(device->m_data_rx[1] >> 4);
 	*value = result;
 
 	return DAC7678_OK;
@@ -239,23 +329,39 @@ DAC7678_State DAC7678_get_dac_reg(DAC7678 *device, const DAC7678_ChannelIdx chan
 	if (!s_init) return DAC7678_ERROR;
 	if (channel > DAC7678_MAX_CHANNELS) return DAC7678_ERROR_INVALID_CHANNEL;
 
-	uint8_t data[1];
-	data[0] = (uint8_t)(DAC7678_CMD_READ_DAC_REG | channel);
+	device->m_data_tx[0] = (uint8_t)(DAC7678_CMD_READ_DAC_REG | channel);
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
 	uint16_t result = 0;
-	result |= (uint16_t)(read_data[0] << 4);
-	result |= (uint16_t)(read_data[1] >> 4);
+	result |= (uint16_t)(device->m_data_rx[0] << 4);
+	result |= (uint16_t)(device->m_data_rx[1] >> 4);
 	*value = result;
 
 	return DAC7678_OK;
@@ -265,22 +371,38 @@ DAC7678_State DAC7678_get_power_reg(DAC7678 *device, DAC7678_PowerOptions *optio
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_PWR;
+	device->m_data_tx[0] = DAC7678_CMD_READ_PWR;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
-	*options = (DAC7678_PowerOptions)(read_data[0] << 5);
-	*channel_mask = (DAC7678_ChannelMsk)(read_data[1]);
+	*options = (DAC7678_PowerOptions)(device->m_data_rx[0] << 5);
+	*channel_mask = (DAC7678_ChannelMsk)(device->m_data_rx[1]);
 
 	return DAC7678_OK;
 }
@@ -289,21 +411,37 @@ DAC7678_State DAC7678_get_clear_reg(DAC7678 *device, DAC7678_ClearOptions *optio
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_CLR_CODE;
+	device->m_data_tx[0] = DAC7678_CMD_READ_CLR_CODE;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
-	*options = (DAC7678_ClearOptions)(read_data[1] << 4);
+	*options = (DAC7678_ClearOptions)(device->m_data_rx[1] << 4);
 
 	return DAC7678_OK;
 }
@@ -312,21 +450,37 @@ DAC7678_State DAC7678_get_ldac_reg(DAC7678 *device, DAC7678_ChannelMsk *channel_
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_LDAC;
+	device->m_data_tx[0] = DAC7678_CMD_READ_LDAC;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
-	*channel_mask = (DAC7678_ChannelMsk)(read_data[1]);
+	*channel_mask = (DAC7678_ChannelMsk)(device->m_data_rx[1]);
 
 	return DAC7678_OK;
 }
@@ -335,21 +489,37 @@ DAC7678_State DAC7678_get_int_ref_static_reg(DAC7678 *device, DAC7678_ReferenceS
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_REF_STATIC;
+	device->m_data_tx[0] = DAC7678_CMD_READ_REF_STATIC;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
-	*options = (DAC7678_ReferenceStaticOptions)(read_data[1] << 4);
+	*options = (DAC7678_ReferenceStaticOptions)(device->m_data_rx[1] << 4);
 
 	return DAC7678_OK;
 }
@@ -358,28 +528,42 @@ DAC7678_State DAC7678_get_int_ref_flexi_reg(DAC7678 *device, DAC7678_ReferenceFl
 {
 	if (!s_init) return DAC7678_ERROR;
 
-	uint8_t data[1];
-	data[0] = DAC7678_CMD_READ_REF_FLEX;
+	device->m_data_tx[0] = DAC7678_CMD_READ_REF_FLEX;
 
-	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, data, 1, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutTx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutTx) return DAC7678_ERROR_TIMEOUT_TX;
+	}
+	if (HAL_I2C_Master_Transmit_IT(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Transmit(device->m_hi2c, device->m_address << 1, device->m_data_tx, 1, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_TX;
 	}
 
-	uint8_t read_data[2];
-	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, read_data, 2, DAC7678_TIMEOUT) != HAL_OK)
+#ifdef DAC7678_INTERRUPTS
+	uint32_t timeoutRx = HAL_GetTick() + DAC7678_TIMEOUT;
+	while (device->m_hi2c->State != HAL_I2C_STATE_READY)
+	{
+		if (HAL_GetTick() > timeoutRx) return DAC7678_ERROR_TIMEOUT_RX;
+	}
+	if (HAL_I2C_Master_Receive_IT(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2) != HAL_OK)
+#else
+	if (HAL_I2C_Master_Receive(device->m_hi2c, device->m_address << 1, device->m_data_rx, 2, DAC7678_TIMEOUT) != HAL_OK)
+#endif
 	{
 		return DAC7678_ERROR_RX;
 	}
 
-	*options = (DAC7678_ReferenceFlexiOptions)(read_data[0] >> 1);
+	*options = (DAC7678_ReferenceFlexiOptions)(device->m_data_rx[0] >> 1);
 
 	return DAC7678_OK;
 }
 
-
-// ---------------------------------------------------------------------------------------------------------------
-
+#ifdef DAC7678_TEST
 void test_saw(DAC7678 *dac, uint16_t amplitude, uint16_t diff)
 {
 	if (amplitude > DAC7678_MAX_VALUE) return;
@@ -409,7 +593,6 @@ void test_sine(DAC7678 *dac, uint16_t amplitude, uint16_t num_samples)
 	if (index >= num_samples) index = 0;
 }
 
-#ifdef DAC7678_TEST
 DAC7678_Test test_wr_input_register(DAC7678 *device)
 {
 	uint16_t dataW = 666;
@@ -424,7 +607,10 @@ DAC7678_Test test_wr_input_register(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (dataW != dataR) return DAC7678_TST_FAIL;
+	if (dataW != dataR)
+	{
+		return DAC7678_TST_FAIL;
+	}
 	dataR = 0;
 
 	// channel B
@@ -666,7 +852,10 @@ DAC7678_Test test_wr_reference_register_static(DAC7678 *device)
 	{
 		return DAC7678_TST_FAIL;
 	}
-	if (optionW != optionR) return DAC7678_TST_FAIL;
+	if (optionW != optionR)
+	{
+		return DAC7678_TST_FAIL;
+	}
 
 	optionW = DAC7678_REF_S_OFF;
 	optionR = DAC7678_REF_S_NONE;
@@ -1000,5 +1189,4 @@ void test_run_all(DAC7678 *dac)
 }
 
 #endif
-
 
